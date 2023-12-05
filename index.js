@@ -8,7 +8,7 @@ dotenv.config();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Create a connection pool
 const pool = mysql.createPool({
@@ -43,6 +43,7 @@ app.get("/", (req, res) => {
       console.error('Error executing query:', err);
       return res.status(500).send('Internal Server Error');
     }
+
     res.render("index.ejs", { results });
   });
 });
@@ -61,13 +62,18 @@ app.post("/submit", (req, res) => {
   res.redirect("/");
 });
 
+// Middleware to release the connection back to the pool after each request
 app.use((req, res, next) => {
   if (req.mysqlConnection) {
     req.mysqlConnection.release();
+    // Log success message when releasing connection
+    console.log('MySQL connection released successfully');
   }
   next();
 });
 
-app.listen(process.env.port || 9002, () => {
-  console.log(`Listening on port 3000`);
+// Update the app.listen method
+const port = process.env.PORT || 9002;
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
 });
