@@ -76,4 +76,5 @@ app.use((req, res, next) => {
 const port = process.env.PORT || 9002;
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
+  console.log("Done");
 });
