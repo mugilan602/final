@@ -2,6 +2,9 @@
   "name": "class",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": ">=14.0.0"
+   },
   "main": "script.js",
   "type": "module",
   "scripts": {
