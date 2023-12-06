@@ -10,9 +10,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Create a connection pool
+// Create a connection pool without connection limit
 const pool = mysql.createPool({
-  connectionLimit: 10, // Adjust as needed
+  // No connection limit
+  // connectionLimit: 10, 
+
+  // Your other configuration options
   host: process.env.host,
   user: process.env.user,
   password: process.env.password,
@@ -81,13 +84,4 @@ const port = process.env.PORT || 9002;
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
   console.log("Done");
-});
-
-// Optional: Use connection pool events for logging
-pool.on('acquire', (connection) => {
-  console.log(`Connection ${connection.threadId} acquired`);
-});
-
-pool.on('release', (connection) => {
-  console.log(`Connection ${connection.threadId} released`);
 });
