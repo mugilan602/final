@@ -65,9 +65,13 @@ app.post("/submit", (req, res) => {
 // Middleware to release the connection back to the pool after each request
 app.use((req, res, next) => {
   if (req.mysqlConnection) {
-    req.mysqlConnection.release();
-    // Log success message when releasing connection
-    console.log('MySQL connection released successfully');
+    req.mysqlConnection.release((err) => {
+      if (err) {
+        console.error('Error releasing MySQL connection:', err);
+      } else {
+        console.log('MySQL connection released successfully');
+      }
+    });
   }
   next();
 });
@@ -77,4 +81,13 @@ const port = process.env.PORT || 9002;
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
   console.log("Done");
+});
+
+// Optional: Use connection pool events for logging
+pool.on('acquire', (connection) => {
+  console.log(`Connection ${connection.threadId} acquired`);
+});
+
+pool.on('release', (connection) => {
+  console.log(`Connection ${connection.threadId} released`);
 });
