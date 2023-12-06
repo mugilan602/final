@@ -10,24 +10,22 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Create a connection pool without connection limit
-const pool = mysql.createPool({
-  // No connection limit
-  // connectionLimit: 10, 
-
-  // Your other configuration options
+// MySQL connection configuration
+const dbConfig = {
   host: process.env.host,
   user: process.env.user,
   password: process.env.password,
   database: process.env.database,
   connectTimeout: 20000, // Adjust as needed (in milliseconds)
-});
+};
 
-// Middleware to acquire a connection from the pool for each request
+// Middleware to acquire a connection for each request
 app.use((req, res, next) => {
-  pool.getConnection((err, connection) => {
+  const connection = mysql.createConnection(dbConfig);
+
+  connection.connect((err) => {
     if (err) {
-      console.error('Error getting MySQL connection:', err);
+      console.error('Error connecting to MySQL:', err);
       return res.status(500).send('Internal Server Error');
     }
 
@@ -62,21 +60,11 @@ app.post("/submit", (req, res) => {
       }
     });
   });
-  res.redirect("/");
-});
 
-// Middleware to release the connection back to the pool after each request
-app.use((req, res, next) => {
-  if (req.mysqlConnection) {
-    req.mysqlConnection.release((err) => {
-      if (err) {
-        console.error('Error releasing MySQL connection:', err);
-      } else {
-        console.log('MySQL connection released successfully');
-      }
-    });
-  }
-  next();
+  // Close the connection after executing queries
+  req.mysqlConnection.end();
+
+  res.redirect("/");
 });
 
 // Update the app.listen method
